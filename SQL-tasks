@@ -1,0 +1,126 @@
+
+-- Task #1
+Create table Person (PersonId int, FirstName varchar(255), LastName varchar(255));
+Create table Address (AddressId int, PersonId int, City varchar(255), State varchar(255));
+Truncate table Person;
+insert into Person (PersonId, LastName, FirstName) values ('1', 'Wang', 'Allen');
+Truncate table Address;
+insert into Address (AddressId, PersonId, City, State) values ('1', '2', 'New York City', 'New York');
+
+--     Write a SQL query for a report that provides
+--     the following information for each person in the Person table,
+--     regardless if there is an address for each of those people:
+--     FirstName, LastName, City, State
+
+--     Solution #1
+SELECT FirstName,LastName,City,State
+FROM Person
+         INNER JOIN Address A ON Person.PersonId = A.PersonId;
+
+--=================================================================================
+--Task #2
+Create table If Not Exists Employee (Id int, Salary int);
+Truncate table Employee;
+insert into Employee (Id, Salary) values ('1', '100');
+insert into Employee (Id, Salary) values ('2', '200');
+insert into Employee (Id, Salary) values ('3', '300');
+
+DROP TABLE Employee;
+
+-- Write a SQL query to get the second highest salary from the Employee table.
+
+--Solution #2
+SELECT  MAX(Salary) AS salary
+FROM employee
+WHERE salary <> (SELECT MAX(salary)
+                 FROM employee);
+
+--================================================================================
+--Task #3
+CREATE SCHEMA employee_manager;
+DROP SCHEMA employee_manager;
+Create table If Not Exists Employee (Id int, Name varchar(255), Salary int, ManagerId int);
+Truncate table Employee;
+insert into Employee (Id, Name, Salary, ManagerId) values ('1', 'Joe', '70000', '3');
+insert into Employee (Id, Name, Salary, ManagerId) values ('2', 'Henry', '80000', '4');
+insert into Employee (Id, Name, Salary, ManagerId) values ('3', 'Sam', '60000', NULL);
+insert into Employee (Id, Name, Salary, ManagerId) values ('4', 'Max', '90000', NULL);
+
+-- Given the Employee table, write a SQL query that
+-- finds out employees who earn more than their managers.
+-- For the above table, Joe is the only employee who earns more than his manager.
+
+--Solution #3.1
+SELECT e.name AS Employee
+FROM employee_manager.employee e
+WHERE e.salary > (
+    SELECT m.salary
+    FROM employee_manager.employee AS m
+    WHERE e.managerid = m.id);
+--Solution #3.2
+SELECT e.name AS Employee
+FROM employee_manager.employee e
+         JOIN Employee m on e.managerid = m.id
+WHERE m.salary < e.salary;
+
+--================================================================================
+--Task #4
+Create table If Not Exists Person (Id int, Email varchar(255));
+Truncate table Person;
+insert into Person (Id, Email) values ('1', 'a@b.com');
+insert into Person (Id, Email) values ('2', 'c@d.com');
+insert into Person (Id, Email) values ('3', 'a@b.com');
+
+--Write a SQL query to find all duplicate emails in a table named Person.
+
+--Solution #4
+SELECT p.email AS Email
+FROM employee_manager.person p
+GROUP BY email
+HAVING count(email) > 1;
+
+--================================================================================
+--Task #5
+Create table If Not Exists Customers (Id int, Name varchar(255));
+Create table If Not Exists Orders (Id int, CustomerId int);
+Truncate table Customers;
+insert into Customers (Id, Name) values ('1', 'Joe');
+insert into Customers (Id, Name) values ('2', 'Henry');
+insert into Customers (Id, Name) values ('3', 'Sam');
+insert into Customers (Id, Name) values ('4', 'Max');
+Truncate table Orders;
+insert into Orders (Id, CustomerId) values ('1', '3');
+insert into Orders (Id, CustomerId) values ('2', '1');
+
+--    Suppose that a website contains two tables,
+--    the Customers table and the Orders table.
+--    Write a SQL query to find all customers who never order anything.
+
+--Solution #5
+SELECT c.Name AS Customers
+FROM Customers AS c
+         LEFT JOIN Orders o ON c.id = o.customerid
+WHERE o.id ISNULL;
+
+--================================================================================
+--Task #6
+
+Create table If Not Exists courses (student varchar(255), class varchar(255));
+Truncate table courses;
+insert into courses (student, class) values ('A', 'Math');
+insert into courses (student, class) values ('B', 'English');
+insert into courses (student, class) values ('C', 'Math');
+insert into courses (student, class) values ('D', 'Biology');
+insert into courses (student, class) values ('E', 'Math');
+insert into courses (student, class) values ('F', 'Computer');
+insert into courses (student, class) values ('G', 'Math');
+insert into courses (student, class) values ('H', 'Math');
+insert into courses (student, class) values ('I', 'Math');
+
+--     There is a table courses with columns: student and class
+-- Please list out all classes which have more than or equal to 5 students.
+
+SELECT c.class
+FROM courses c
+GROUP BY class
+HAVING count( DISTINCT student) >= 5
